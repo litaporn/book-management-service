@@ -24,7 +24,7 @@ To handle a large number of books efficiently, an index is created on the author
 CREATE INDEX idx_author ON books (author);
 ```
 
-## Configure Database Connection
+### Configure Database Connection
 To configure your database connection in the `application.properties` file, add the following properties:
 
 ```properties
@@ -49,7 +49,7 @@ Explan:
 
 Before run the application, ensure your project is correctly configured to connect to the database.
 
-##### Running the Application Locally
+#### Running the Application Locally
 
 Follow the steps:
 
@@ -66,7 +66,7 @@ cd {path_local}/book-management
 ./mvnw spring-boot:run
 ```
 
-## Optional: Run the Application Using IntelliJ IDEA
+#### Optional: Run the Application Using IntelliJ IDEA
 
 1. Ensure your project has no errors and the `application.properties` file is properly configured.
 2. Click the "Run" button in IntelliJ IDEA. The application will start and the console output should look like this:
@@ -86,7 +86,7 @@ Before running the integration tests, please ensure the following:
 
 This project uses a separate environment for testing. Please follow these steps:
 
-## Step 1: Create the Test Database
+### Step 1: Create the Test Database
 To set up the test database `manage_books_test` which is only used for testing, run the following SQL schema:
 
 ```sql
@@ -101,7 +101,7 @@ CREATE TABLE books (
 
 ```
 
-## Step 2: Configure **Test** Database Connection
+### Step 2: Configure **Test** Database Connection
 In the `application-test.properties` file (used only for testing), add the following properties to configure the test database connection:
 
 ```properties
@@ -116,7 +116,7 @@ spring.jpa.properties.hibernate.format_sql=true
 ```
 Ensure that the connection is set to the `manage_books_test` database for testing.
 
-## Step 3: Run the Integration Tests
+### Step 3: Run the Integration Tests
 
 To run the integration tests, just execute methods like `testSaveBook()` or `testGetBooksByAuthor()` in the `BookManagementServiceApplicationTests` class.
 
@@ -139,30 +139,40 @@ To run the integration tests, just execute methods like `testSaveBook()` or `tes
 
 `mockMvc` is a tool in Spring that helps you test HTTP requests without running a real server. It’s useful for testing API endpoints in integration tests.
 
-## Example of Integration Tests with `mockMvc`
+#### Example of Integration Tests with `mockMvc`
 
 Here’s how you can use `mockMvc` to test an HTTP POST request to the `/books` endpoint:
 
 ```java
 String bookJson = "{ \"title\": \"Test Book 3\", \"author\": \"Author Test3\", \"publishedDate\": \"2567-01-15\" }";
 mockMvc.perform(post("/books").contentType(MediaType.APPLICATION_JSON).content(bookJson))
-        .andExpect(status().isCreated())  // Verify the response status is 201 (Created)
-        .andExpect(jsonPath("$.title").value("Test Book 3"))  // Verify the title is "Test Book 4"
-        .andExpect(jsonPath("$.author").value("Author Test3"))  // Verify the author is "Author Test4"
-        .andExpect(jsonPath("$.publishedDate").value("2567-01-15"));  // Verify the publishedDate is "2567-01-15"
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.title").value("Test Book 3")) 
+        .andExpect(jsonPath("$.author").value("Author Test3"))
+        .andExpect(jsonPath("$.publishedDate").value("2567-01-15"));
 ```
 
-## Expected Test Output
+#### Expected Test Output
 If the data in `bookJson` and the values in `andExpect` match up correctly, the test should **pass**, and you should see output like this:
 
 ```bash
-Tests passed: 1 of 1 test - 1 sec 49ms
+Tests <p style="color: green;">passed</p>: 1 of 1 test - 1 sec 49ms
 ```
 
-If the test fails, you might see an output like this:
+Try editing the test and expect it to **fail**:
+
+```java
+mockMvc.perform(post("/books").contentType(MediaType.APPLICATION_JSON).content(bookJson))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.title").value("Test Book 4"))  
+        .andExpect(jsonPath("$.author").value("Author Test3")) 
+        .andExpect(jsonPath("$.publishedDate").value("2567-01-15"));
+```
+
+you might see an output like this:
 
 ```bash
-Test failed: 1 of 1 test - 1 sec 77ms
+Test <p style="color: red;">failed</p>: 1 of 1 test - 1 sec 77ms
 
 MockHttpServletRequest:
       HTTP Method = POST
@@ -174,7 +184,7 @@ MockHttpServletRequest:
 
 Handler:
              Type = com.asc.library.bookmanagement.controller.BookController
-           Method = com.asc.library.bookmanagement.controller.BookController#saveBook(Book, Locale)
+           Method = com.asc.library.bookmanagement.controller.BookController#saveBook(Book)
 
 Async:
     Async started = false
@@ -182,7 +192,7 @@ Async:
 
 Resolved Exception:
              Type = null
-
+             
 ModelAndView:
         View name = null
              View = null
@@ -196,7 +206,7 @@ MockHttpServletResponse:
     Error message = null
           Headers = [Content-Type:"application/json"]
      Content type = application/json
-             Body = {"id":34,"title":"Test Book 3","author":"Author Test3","publishedDate":"2567-01-15"}
+             Body = {"id":49,"title":"Test Book 3","author":"Author Test3","publishedDate":"2567-01-15"}
     Forwarded URL = null
    Redirected URL = null
           Cookies = []
@@ -265,9 +275,9 @@ by subtracting 543 years before saving it in the database and convert it back to
 
 
 ## Error Handling
-### 1. POST /books - Save a New Book
-#### 1.1 POST /books - Save a New Book (Title is Missing)
-##### Request:
+## 1. POST /books - Save a New Book
+### 1.1 POST /books - Save a New Book (Title is Missing)
+#### Request:
 ```http
 POST /books HTTP/1.1
 Content-Type: application/json
@@ -287,8 +297,8 @@ Response:
 ```
 * Status : 400 Bad Request
 
-#### 1.2 POST /books - Save a New Book (Author is Missing)
-##### Request:
+### 1.2 POST /books - Save a New Book (Author is Missing)
+#### Request:
 ```http
 POST /books HTTP/1.1
 Content-Type: application/json
@@ -308,8 +318,8 @@ Response:
 ```
 * Status : 400 Bad Request
 
-#### 1.3 POST /books - Save a New Book (Invalid publishedDate)
-##### Request:
+### 1.3 POST /books - Save a New Book (Invalid publishedDate)
+#### Request:
 ```http
 POST /books HTTP/1.1
 Content-Type: application/json
@@ -329,9 +339,9 @@ Response:
 ```
 * Status : 400 Bad Request
 
-### 2. GET /books?author={authorName} - Get Books by Author
-#### 2.1 GET /books?author= Get Books by Author (Author Name is Missing)
-##### Request:
+## 2. GET /books?author={authorName} - Get Books by Author
+### 2.1 GET /books?author= Get Books by Author (Author Name is Missing)
+#### Request:
 ```http
 GET /books?author=
 Host: localhost:8080
@@ -344,8 +354,8 @@ Response:
 ```
 * Status : 400 Bad Request
 
-#### 2.2 GET /books?author={authorName} Get Books by Author (AuthorName Not Found)
-##### Request:
+### 2.2 GET /books?author={authorName} Get Books by Author (AuthorName Not Found)
+#### Request:
 ```http
 GET /books?author=Test
 Host: localhost:8080

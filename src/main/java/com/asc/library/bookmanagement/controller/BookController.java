@@ -24,6 +24,7 @@ public class BookController {
     // GET /books?author={authorName}
     @GetMapping
     public ResponseEntity<?> getBooksByAuthor(@RequestParam("author") String authorName) {
+        //Validate
         if (authorName == null || authorName.isEmpty()) {
             return new ResponseEntity<>(new ErrorResponse("Author must not be null."), HttpStatus.BAD_REQUEST);
         }
@@ -38,7 +39,7 @@ public class BookController {
             book.setPublishedDate(LocalDate.of(buddhistYear, book.getPublishedDate().getMonthValue(), book.getPublishedDate().getDayOfMonth()));
         }
 
-        return ResponseEntity.ok(books); //200
+        return ResponseEntity.ok(books); //return 200
     }
 
     // POST /books
@@ -53,7 +54,7 @@ public class BookController {
             return ResponseEntity.badRequest().body(new ErrorResponse("Author must not be null."));
         }
 
-        // Convert Buddhist calendar year (B.E.) to Gregorian calendar year (C.E.)
+        // Convert calendar year B.E. to C.E. before saving it in the database
         LocalDate publishedDate = LocalDate.of(
                 book.getPublishedDate().getYear() - 543,
                 book.getPublishedDate().getMonthValue(),
@@ -73,10 +74,10 @@ public class BookController {
         // Save book to the database
         Book savedBook = bookRepository.save(book);
 
-        // Convert publishedDate to Buddhist calendar year (B.E.) and send response to client
+        // Convert publishedDate back to B.E. before sending it in the response
         int buddhistYear = savedBook.getPublishedDate().getYear() + 543;
 
-        // create object for sent to client
+        // create object for sent to the client
         Book responseBook = new Book();
         responseBook.setId(savedBook.getId());
         responseBook.setTitle(savedBook.getTitle());

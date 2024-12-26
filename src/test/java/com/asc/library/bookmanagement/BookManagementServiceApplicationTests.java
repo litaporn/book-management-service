@@ -30,10 +30,10 @@ class BookManagementServiceApplicationTests {
 
 	@BeforeEach
 	public void setUp() {
-		// delete all before test
+		// delete all data before testing
 		bookRepository.deleteAll();
 
-		// Prepare test data
+		// Prepare mock test data
 		Book book1 = new Book();
 		book1.setTitle("Test Book 1");
 		book1.setAuthor("Author Test1");
@@ -49,14 +49,13 @@ class BookManagementServiceApplicationTests {
 
 	@Test
 	void contextLoads() {
-		// ตรวจสอบว่า Application Context สามารถโหลดได้
 	}
 
 	@Test
 	void testSaveBook() throws Exception {
 		String bookJson = "{ \"title\": \"Test Book 3\", \"author\": \"Author Test3\", \"publishedDate\": \"2567-01-15\" }";
 
-		// Test for save a book
+		// Test for save a new book
 		mockMvc.perform(post("/books")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(bookJson))
