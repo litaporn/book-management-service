@@ -156,7 +156,7 @@ mockMvc.perform(post("/books").contentType(MediaType.APPLICATION_JSON).content(b
 If the data in `bookJson` and the values in `andExpect` match up correctly, the test should **pass**, and you should see output like this:
 
 ```bash
-Tests <p style="color: green;">passed</p>: 1 of 1 test - 1 sec 49ms
+Tests passed: 1 of 1 test - 1 sec 49ms
 ```
 
 Try editing the test and expect it to **fail**:
@@ -172,7 +172,7 @@ mockMvc.perform(post("/books").contentType(MediaType.APPLICATION_JSON).content(b
 you might see an output like this:
 
 ```bash
-Test <p style="color: red;">failed</p>: 1 of 1 test - 1 sec 77ms
+Test failed: 1 of 1 test - 1 sec 77ms
 
 MockHttpServletRequest:
       HTTP Method = POST
