@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Locale;
 
 @RestController
 @RequestMapping("/books")
@@ -44,7 +43,7 @@ public class BookController {
 
     // POST /books
     @PostMapping
-    public ResponseEntity<?> saveBook(@RequestBody Book book, Locale locale) {
+    public ResponseEntity<?> saveBook(@RequestBody Book book) {
         // Validate
         if (book.getPublishedDate() == null) {
             return ResponseEntity.badRequest().body(new ErrorResponse("Published date must not be null."));
