@@ -1,6 +1,7 @@
 package com.asc.library.bookmanagement.controller;
 
 import com.asc.library.bookmanagement.model.Book;
+import com.asc.library.bookmanagement.model.ErrorResponse;
 import com.asc.library.bookmanagement.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/books")
@@ -22,52 +24,52 @@ public class BookController {
 
     // GET /books?author={authorName}
     @GetMapping
-    public ResponseEntity<List<Book>> getBooksByAuthor(@RequestParam("author") String authorName) {
+    public ResponseEntity<?> getBooksByAuthor(@RequestParam("author") String authorName) {
         if (authorName == null || authorName.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ErrorResponse("Author must not be null."), HttpStatus.BAD_REQUEST);
         }
         List<Book> books = bookRepository.findByAuthor(authorName);
 
         if (books.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ErrorResponse("No books found for the specified author."), HttpStatus.NOT_FOUND);
         }
-        // covert publishedDate from C.E. เป็น B.E. before sent response to client
+        // covert publishedDate from C.E. to B.E. before sent response to client
         for (Book book : books) {
             int buddhistYear = book.getPublishedDate().getYear() + 543;
             book.setPublishedDate(LocalDate.of(buddhistYear, book.getPublishedDate().getMonthValue(), book.getPublishedDate().getDayOfMonth()));
         }
 
-        return ResponseEntity.ok(books);
+        return ResponseEntity.ok(books); //200
     }
 
     // POST /books
     @PostMapping
-    public ResponseEntity<Book> saveBook(@RequestBody Book book) {
+    public ResponseEntity<?> saveBook(@RequestBody Book book, Locale locale) {
         // Validate
         if (book.getPublishedDate() == null) {
-            throw new IllegalArgumentException("Published date must not be null");
+            return ResponseEntity.badRequest().body(new ErrorResponse("Published date must not be null."));
         } else if (book.getTitle() == null || book.getTitle().isEmpty()) {
-            throw new IllegalArgumentException("Title must not be null");
+            return ResponseEntity.badRequest().body(new ErrorResponse("Title must not be null."));
         } else if (book.getAuthor() == null || book.getAuthor().isEmpty()) {
-            throw new IllegalArgumentException("Author must not be null");
+            return ResponseEntity.badRequest().body(new ErrorResponse("Author must not be null."));
         }
 
         // Convert Buddhist calendar year (B.E.) to Gregorian calendar year (C.E.)
-        LocalDate gregorianDate = LocalDate.of(
+        LocalDate publishedDate = LocalDate.of(
                 book.getPublishedDate().getYear() - 543,
                 book.getPublishedDate().getMonthValue(),
                 book.getPublishedDate().getDayOfMonth()
         );
 
-        if (gregorianDate.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("Published date must not be in the future");
+        if (publishedDate.isAfter(LocalDate.now())) {
+            return ResponseEntity.badRequest().body(new ErrorResponse("Published date must be less than or equal to the current year."));
         }
 
-        if (gregorianDate.getYear() < 1000) {
-            throw new IllegalArgumentException("Published date must be greater than or equal to the year 1000");
+        if (publishedDate.isBefore(LocalDate.of(1000,1,1))) {
+            return ResponseEntity.badRequest().body(new ErrorResponse("Published date must be greater than or equal to the year 1000."));
         }
 
-        book.setPublishedDate(gregorianDate);
+        book.setPublishedDate(publishedDate);
 
         // Save book to the database
         Book savedBook = bookRepository.save(book);
@@ -80,7 +82,6 @@ public class BookController {
         responseBook.setId(savedBook.getId());
         responseBook.setTitle(savedBook.getTitle());
         responseBook.setAuthor(savedBook.getAuthor());
-
         responseBook.setPublishedDate(LocalDate.of(buddhistYear, savedBook.getPublishedDate().getMonthValue(), savedBook.getPublishedDate().getDayOfMonth()));
 
         // HttpStatus.CREATED 201

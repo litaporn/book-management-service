@@ -1,5 +1,6 @@
 package com.asc.library.bookmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -23,6 +24,7 @@ public class Book {
 
     @NotNull(message = "Published date must not be null")
     @PastOrPresent(message = "Published date must not be in the future")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate publishedDate;
 
     public Integer getId() {
