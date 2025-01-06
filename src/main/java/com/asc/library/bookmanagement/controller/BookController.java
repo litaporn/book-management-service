@@ -3,6 +3,7 @@ package com.asc.library.bookmanagement.controller;
 import com.asc.library.bookmanagement.model.Book;
 import com.asc.library.bookmanagement.model.ErrorResponse;
 import com.asc.library.bookmanagement.repository.BookRepository;
+import com.asc.library.bookmanagement.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +15,15 @@ import java.util.List;
 @RequestMapping("/books")
 public class BookController {
 
-    private final BookRepository bookRepository;
+//    private final BookRepository bookRepository;
+//
+//    @Autowired
+//    public BookController(BookRepository bookRepository) {
+//        this.bookRepository = bookRepository;
+//    }
 
     @Autowired
-    public BookController(BookRepository bookRepository) {
-        this.bookRepository = bookRepository;
-    }
+    public BookService bookService;
 
     // GET /books?author={authorName}
     @GetMapping
@@ -28,7 +32,8 @@ public class BookController {
         if (authorName == null || authorName.isEmpty()) {
             return new ResponseEntity<>(new ErrorResponse("Author must not be null."), HttpStatus.BAD_REQUEST);
         }
-        List<Book> books = bookRepository.findByAuthor(authorName);
+        //List<Book> books = bookRepository.findByAuthor(authorName);
+        List<Book> books = bookService.getBooksByAuthor(authorName);
 
         if (books.isEmpty()) {
             return new ResponseEntity<>(new ErrorResponse("No books found for the specified author."), HttpStatus.NOT_FOUND);
@@ -72,7 +77,8 @@ public class BookController {
         book.setPublishedDate(publishedDate);
 
         // Save book to the database
-        Book savedBook = bookRepository.save(book);
+        //Book savedBook = bookRepository.save(book);
+        Book savedBook = bookService.saveBook(book);
 
         // Convert publishedDate back to B.E. before sending it in the response
         int buddhistYear = savedBook.getPublishedDate().getYear() + 543;
